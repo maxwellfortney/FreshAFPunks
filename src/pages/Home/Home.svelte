@@ -4,6 +4,7 @@
         isWaitingForAccount,
         promptForMetaMask,
         selectedAccount,
+        networkID,
     } from "../../stores/wallet.js";
     import { onMount } from "svelte";
 
@@ -27,6 +28,16 @@
     >
         {$selectedAccount ? "Shop The Collection" : "View The Collection"}
     </a>
+    {#if $networkID !== 1 && $selectedAccount}
+        <p class="mt-4 text-xs dark:text-white">
+            Psst. Hey! You're not on the Ethereum Mainnet.
+        </p>
+    {/if}
+    <!-- <div
+        class="relative px-2 py-1.5 text-sm sm:text-base text-white aStackCard-hover aStackCard bg-FreshAF-red shadow-lg"
+    >
+        Coming Soon
+    </div> -->
 </div>
 
 <style>

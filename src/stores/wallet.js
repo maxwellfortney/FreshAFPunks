@@ -7,6 +7,7 @@ import Fortmatic from "fortmatic";
 export let isWaitingForAccount = writable(false);
 export let selectedAccount = writable();
 export let web3 = writable();
+export let networkID = writable();
 
 let web3Modal;
 let provider;
@@ -14,8 +15,7 @@ const providerOptions = {
     fortmatic: {
         package: Fortmatic,
         options: {
-            // Mikko's TESTNET api key
-            key: "pk_test_391E26A3B43A3350",
+            key: "pk_live_A38526F6D292C4DB",
         },
     },
 };
@@ -39,6 +39,7 @@ export async function promptForMetaMask() {
     if (accounts.length > 0) {
         selectedAccount.set(accounts[0]);
     }
+    networkID.set(await _web3.eth.net.getId());
 }
 
 export async function initWallet() {
@@ -59,5 +60,12 @@ export async function initWallet() {
         if (accounts.length > 0) {
             selectedAccount.set(accounts[0]);
         }
+        networkID.set(await _web3.eth.net.getId());
+        console.log(get(networkID));
     }
+}
+
+export function clearCachedProvider() {
+    web3Modal.clearCachedProvider();
+    location.reload();
 }

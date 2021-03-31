@@ -1,7 +1,8 @@
 const FreshAFPunks = artifacts.require("FreshAFPunks");
 
 module.exports = function (deployer, network, accounts) {
-    console.log("Profits will be sent to: ", accounts[0]);
-    console.log(accounts);
-    deployer.deploy(FreshAFPunks, "0x01700217a72b2Bb86E3634EdFf35A3308dA3fFf5");
+    // console.log(
+    //     "Profits will be sent to: 0xb878bb84a0368c6c98d7b3e7f0f805068c2e32af"
+    // );
+    deployer.deploy(FreshAFPunks, accounts[0]);
 };

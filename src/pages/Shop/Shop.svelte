@@ -1,10 +1,12 @@
 <script>
-    import { selectedAccount } from "../../stores/wallet";
+    import { selectedAccount, networkID } from "../../stores/wallet";
     import {
         connectContract,
         getMintablePunks,
         getSoldPunks,
         totalSupply,
+        getRandomMintablePunk,
+        randomPunkNum,
     } from "../../stores/contract";
     import PaginatePane from "./PaginatePane.svelte";
     import { onDestroy, onMount } from "svelte";
@@ -29,7 +31,11 @@
 
     async function fetchSold(shouldReset) {
         isLoading = true;
-        if (shouldReset) data = [];
+
+        if (shouldReset) {
+            pageLimit = 45;
+            data = [];
+        }
         viewingMintable = false;
         // await connectContract();
 
@@ -107,14 +113,26 @@
                     </div>
                 </div>
             </div>
-            <p class="text-base dark:text-white">
-                {viewingMintable
-                    ? `${12500 - parseInt($totalSupply)}`
-                    : $totalSupply}
-                {viewingMintable ? "For Sale" : "Sold"}
-            </p>
+            <div class="flex items-center">
+                {#if viewingMintable}
+                    <a
+                        href={`/#/shop/${$randomPunkNum}`}
+                        class={`mr-5 shadow-lg aStackCard-hover relative px-1 py-1 text-base text-white bg-FreshAF-red aStackCard`}
+                    >
+                        Random
+                    </a>
+                {/if}
+
+                <p class="text-base dark:text-white">
+                    {viewingMintable
+                        ? `${12500 - parseInt($totalSupply)}`
+                        : $totalSupply}
+                    {viewingMintable ? "For Sale" : "Sold"}
+                </p>
+            </div>
         </div>
-        {#if $selectedAccount}
+        <!-- ADD HERE -->
+        {#if $selectedAccount && $networkID}
             {#if data.length > 0}
                 <div
                     class="grid w-full gap-8 overflow-y-auto punksGrid"
@@ -166,6 +184,14 @@
                     </div>
                 {/await} -->
             {/if}
+        {:else if $networkID !== 1 && $selectedAccount}
+            <p class="mx-auto text-base dark:text-white ">
+                Please change to the Ethereum mainnet
+            </p>
+        {:else}
+            <p class="mx-auto text-base dark:text-white ">
+                Please connect your wallet
+            </p>
         {/if}
     </div>
 </div>
@@ -201,5 +227,11 @@
     .aPunk:hover {
         transform: translateY(-3px);
         opacity: 0.8;
+    }
+
+    .aPunk img {
+        image-rendering: pixelated;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: crisp-edges;
     }
 </style>

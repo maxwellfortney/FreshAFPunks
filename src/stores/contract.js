@@ -2,563 +2,24 @@ import { get, readable, writable } from "svelte/store";
 import { web3 as _web3, selectedAccount, web3 } from "./wallet";
 import BN from "bn.js";
 import FreshAFPunksContract from "../contracts/FreshAFPunks.json";
-
-export const contractAddress = ""; //mainnet
-export const devContractAddress = ""; //Ganache
-
-export let currentContractAddress = "";
-let abi = [
-    {
-        inputs: [
-            {
-                internalType: "address payable",
-                name: "_newWallet",
-                type: "address",
-            },
-        ],
-        stateMutability: "payable",
-        type: "constructor",
-    },
-    {
-        anonymous: false,
-        inputs: [
-            {
-                indexed: true,
-                internalType: "address",
-                name: "owner",
-                type: "address",
-            },
-            {
-                indexed: true,
-                internalType: "address",
-                name: "approved",
-                type: "address",
-            },
-            {
-                indexed: true,
-                internalType: "uint256",
-                name: "tokenId",
-                type: "uint256",
-            },
-        ],
-        name: "Approval",
-        type: "event",
-    },
-    {
-        anonymous: false,
-        inputs: [
-            {
-                indexed: true,
-                internalType: "address",
-                name: "owner",
-                type: "address",
-            },
-            {
-                indexed: true,
-                internalType: "address",
-                name: "operator",
-                type: "address",
-            },
-            {
-                indexed: false,
-                internalType: "bool",
-                name: "approved",
-                type: "bool",
-            },
-        ],
-        name: "ApprovalForAll",
-        type: "event",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "to",
-                type: "address",
-            },
-            {
-                internalType: "uint256",
-                name: "tokenId",
-                type: "uint256",
-            },
-        ],
-        name: "approve",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address payable",
-                name: "_newWallet",
-                type: "address",
-            },
-        ],
-        name: "changeWallet",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "uint256",
-                name: "tokenID",
-                type: "uint256",
-            },
-        ],
-        name: "mint",
-        outputs: [],
-        stateMutability: "payable",
-        type: "function",
-    },
-    {
-        anonymous: false,
-        inputs: [
-            {
-                indexed: true,
-                internalType: "address",
-                name: "previousOwner",
-                type: "address",
-            },
-            {
-                indexed: true,
-                internalType: "address",
-                name: "newOwner",
-                type: "address",
-            },
-        ],
-        name: "OwnershipTransferred",
-        type: "event",
-    },
-    {
-        inputs: [],
-        name: "renounceOwnership",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "from",
-                type: "address",
-            },
-            {
-                internalType: "address",
-                name: "to",
-                type: "address",
-            },
-            {
-                internalType: "uint256",
-                name: "tokenId",
-                type: "uint256",
-            },
-        ],
-        name: "safeTransferFrom",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "from",
-                type: "address",
-            },
-            {
-                internalType: "address",
-                name: "to",
-                type: "address",
-            },
-            {
-                internalType: "uint256",
-                name: "tokenId",
-                type: "uint256",
-            },
-            {
-                internalType: "bytes",
-                name: "_data",
-                type: "bytes",
-            },
-        ],
-        name: "safeTransferFrom",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "operator",
-                type: "address",
-            },
-            {
-                internalType: "bool",
-                name: "approved",
-                type: "bool",
-            },
-        ],
-        name: "setApprovalForAll",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "string",
-                name: "baseURI",
-                type: "string",
-            },
-        ],
-        name: "setBaseURI",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        anonymous: false,
-        inputs: [
-            {
-                indexed: true,
-                internalType: "address",
-                name: "from",
-                type: "address",
-            },
-            {
-                indexed: true,
-                internalType: "address",
-                name: "to",
-                type: "address",
-            },
-            {
-                indexed: true,
-                internalType: "uint256",
-                name: "tokenId",
-                type: "uint256",
-            },
-        ],
-        name: "Transfer",
-        type: "event",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "from",
-                type: "address",
-            },
-            {
-                internalType: "address",
-                name: "to",
-                type: "address",
-            },
-            {
-                internalType: "uint256",
-                name: "tokenId",
-                type: "uint256",
-            },
-        ],
-        name: "transferFrom",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "newOwner",
-                type: "address",
-            },
-        ],
-        name: "transferOwnership",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "owner",
-                type: "address",
-            },
-        ],
-        name: "balanceOf",
-        outputs: [
-            {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [],
-        name: "baseURI",
-        outputs: [
-            {
-                internalType: "string",
-                name: "",
-                type: "string",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [],
-        name: "contractURI",
-        outputs: [
-            {
-                internalType: "string",
-                name: "",
-                type: "string",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "uint256",
-                name: "tokenId",
-                type: "uint256",
-            },
-        ],
-        name: "getApproved",
-        outputs: [
-            {
-                internalType: "address",
-                name: "",
-                type: "address",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [],
-        name: "getCurrentPrice",
-        outputs: [
-            {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [],
-        name: "hardLimit",
-        outputs: [
-            {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "owner",
-                type: "address",
-            },
-            {
-                internalType: "address",
-                name: "operator",
-                type: "address",
-            },
-        ],
-        name: "isApprovedForAll",
-        outputs: [
-            {
-                internalType: "bool",
-                name: "",
-                type: "bool",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [],
-        name: "name",
-        outputs: [
-            {
-                internalType: "string",
-                name: "",
-                type: "string",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [],
-        name: "owner",
-        outputs: [
-            {
-                internalType: "address",
-                name: "",
-                type: "address",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "uint256",
-                name: "tokenId",
-                type: "uint256",
-            },
-        ],
-        name: "ownerOf",
-        outputs: [
-            {
-                internalType: "address",
-                name: "",
-                type: "address",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "bytes4",
-                name: "interfaceId",
-                type: "bytes4",
-            },
-        ],
-        name: "supportsInterface",
-        outputs: [
-            {
-                internalType: "bool",
-                name: "",
-                type: "bool",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [],
-        name: "symbol",
-        outputs: [
-            {
-                internalType: "string",
-                name: "",
-                type: "string",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "uint256",
-                name: "index",
-                type: "uint256",
-            },
-        ],
-        name: "tokenByIndex",
-        outputs: [
-            {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address",
-                name: "owner",
-                type: "address",
-            },
-            {
-                internalType: "uint256",
-                name: "index",
-                type: "uint256",
-            },
-        ],
-        name: "tokenOfOwnerByIndex",
-        outputs: [
-            {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "uint256",
-                name: "tokenId",
-                type: "uint256",
-            },
-        ],
-        name: "tokenURI",
-        outputs: [
-            {
-                internalType: "string",
-                name: "",
-                type: "string",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [],
-        name: "totalSupply",
-        outputs: [
-            {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-];
+import attributePercentages from "../assets/attribute-percentages.json";
 
 let baseMetadataURI = "https://freshafpunks-metadata-api.herokuapp.com/";
 
 export let state = writable("initial");
 export let userNumOwnedPunks = writable(0);
+export let userOwnedPunksData = writable([]);
+export let userAverageRarity = writable(0);
+export let userMostRare = writable();
+export let randomPunkNum = writable();
+
 export let userPunks;
 export let totalSupply = writable(0);
 
 // export let mintablePunksData = writable([]);
 export let soldURLs = writable([]);
+
+const ownerWallet = "0xC95D30228b2AD9B6A8Ba290B445b6ff6af0b715E";
 
 let contract;
 let networkId = null;
@@ -569,12 +30,33 @@ function clean_address(address) {
 
 export let my_tokens = [];
 
+export async function getRandomMintablePunk() {
+    if (!contract) await connectContract();
+    if (contract && get(selectedAccount)) {
+        let soldIDs = [];
+
+        for (let i = 0; i < parseInt(get(totalSupply)); i++) {
+            soldIDs.push(
+                parseInt(await contract.methods.tokenByIndex(i).call())
+            );
+        }
+
+        let randomNum = Math.floor(Math.random() * 12500);
+        while (soldIDs.includes[randomNum]) {
+            randomNum = Math.floor(Math.random() * 12500);
+        }
+
+        randomPunkNum.set(randomNum);
+        return randomNum;
+    }
+}
+
 export async function getMintablePunks(offset, limit) {
     if (!contract) await connectContract();
 
     if (contract && get(selectedAccount)) {
+        console.log(await getRandomMintablePunk());
         let mintablePunksData = [];
-        console.log("hhhh");
         totalSupply.set(await contract.methods.totalSupply().call());
 
         let soldIDs = [];
@@ -585,21 +67,7 @@ export async function getMintablePunks(offset, limit) {
             );
         }
         console.log(soldIDs);
-        // let mintedTokenIDs = await contract.methods.mintedTokenIDs(0).call();
-        // console.log(mintedTokenIDs);
 
-        // if (totalSupply) {
-        // } else {
-        //     for (let i = offset; i < limit + offset; i++) {
-        //         let data = await fetch(
-        //             `${baseMetadataURI}api/token/${i}`
-        //         ).then((res) => res.json());
-
-        //         console.log(data);
-        //         mintablePunksData.push(data);
-        //     }
-        //     return mintablePunksData;
-        // }
         for (let i = offset; i < limit + offset; i++) {
             if (soldIDs.includes(i)) {
                 limit++;
@@ -646,8 +114,6 @@ export async function getSoldPunks(offset, limit) {
                 soldIDs = soldIDs.slice(offset, offset + limit);
             }
 
-            console.log("AASAS");
-
             for (let i = offset; i < soldIDs.length; i++) {
                 let data = await fetch(
                     `${baseMetadataURI}api/token/${soldIDs[i]}`
@@ -663,6 +129,14 @@ export async function getSoldPunks(offset, limit) {
     }
 }
 
+function getPercentageForAttribute(value) {
+    for (let i = 0; i < attributePercentages.length; i++) {
+        if (attributePercentages[i].attributeName === value) {
+            return attributePercentages[i].percent;
+        }
+    }
+}
+
 export async function getUserInventory() {
     if (!contract) await connectContract();
 
@@ -671,16 +145,46 @@ export async function getUserInventory() {
             await contract.methods.balanceOf(get(selectedAccount)).call()
         );
 
-        if (userNumOwnedPunks > 0) {
-            let punksArr = [];
-            for (let i = 0; i < userNumOwnedPunks; i++) {
+        if (parseInt(get(userNumOwnedPunks)) > 0) {
+            userOwnedPunksData.set([]);
+            let lowestRarityItem;
+            let lowestRarityPercent = 100;
+            let allRarities = [];
+            for (let i = 0; i < get(userNumOwnedPunks); i++) {
                 let tokenID = await contract.methods
                     .tokenOfOwnerByIndex(get(selectedAccount), i)
                     .call();
                 console.log(tokenID);
+                let data = await getDataForID(tokenID);
+                userOwnedPunksData.update((userOwnedPunksData) => [
+                    ...userOwnedPunksData,
+                    data,
+                ]);
+                console.log(data);
+
+                data.attributes.forEach((attribute, i) => {
+                    let rarity = getPercentageForAttribute(attribute.value);
+                    console.log(rarity);
+                    console.log(lowestRarityPercent);
+                    if (rarity < lowestRarityPercent) {
+                        lowestRarityPercent = rarity;
+                        attribute.rarity = rarity;
+                        lowestRarityItem = attribute;
+                    }
+                    allRarities.push(rarity);
+                });
             }
+
+            var total = 0;
+            for (var i = 0; i < allRarities.length; i++) {
+                total += allRarities[i];
+            }
+
+            userAverageRarity.set((total / allRarities.length).toFixed(2));
+            userMostRare.set(lowestRarityItem);
+            console.log(get(userAverageRarity));
+            console.log(get(userMostRare));
         }
-        console.log(userNumOwnedPunks);
     } else {
         // retryInterval = setInterval(async () => {
         //     return await getUserInventory();
@@ -706,9 +210,465 @@ export async function connectContract() {
         networkId = await web3.eth.net.getId();
         const deployedNetwork = FreshAFPunksContract.networks[networkId];
 
+        // contract = new web3.eth.Contract(
+        //     FreshAFPunksContract.abi,
+        //     deployedNetwork.address
+        // );
+        let abi = [
+            {
+                inputs: [
+                    {
+                        internalType: "address payable",
+                        name: "_wallet",
+                        type: "address",
+                    },
+                ],
+                stateMutability: "nonpayable",
+                type: "constructor",
+            },
+            {
+                anonymous: false,
+                inputs: [
+                    {
+                        indexed: true,
+                        internalType: "address",
+                        name: "owner",
+                        type: "address",
+                    },
+                    {
+                        indexed: true,
+                        internalType: "address",
+                        name: "approved",
+                        type: "address",
+                    },
+                    {
+                        indexed: true,
+                        internalType: "uint256",
+                        name: "tokenId",
+                        type: "uint256",
+                    },
+                ],
+                name: "Approval",
+                type: "event",
+            },
+            {
+                anonymous: false,
+                inputs: [
+                    {
+                        indexed: true,
+                        internalType: "address",
+                        name: "owner",
+                        type: "address",
+                    },
+                    {
+                        indexed: true,
+                        internalType: "address",
+                        name: "operator",
+                        type: "address",
+                    },
+                    {
+                        indexed: false,
+                        internalType: "bool",
+                        name: "approved",
+                        type: "bool",
+                    },
+                ],
+                name: "ApprovalForAll",
+                type: "event",
+            },
+            {
+                anonymous: false,
+                inputs: [
+                    {
+                        indexed: true,
+                        internalType: "address",
+                        name: "from",
+                        type: "address",
+                    },
+                    {
+                        indexed: true,
+                        internalType: "address",
+                        name: "to",
+                        type: "address",
+                    },
+                    {
+                        indexed: true,
+                        internalType: "uint256",
+                        name: "tokenId",
+                        type: "uint256",
+                    },
+                ],
+                name: "Transfer",
+                type: "event",
+            },
+            {
+                inputs: [
+                    {
+                        internalType: "address",
+                        name: "to",
+                        type: "address",
+                    },
+                    {
+                        internalType: "uint256",
+                        name: "tokenId",
+                        type: "uint256",
+                    },
+                ],
+                name: "approve",
+                outputs: [],
+                stateMutability: "nonpayable",
+                type: "function",
+            },
+            {
+                inputs: [
+                    {
+                        internalType: "address",
+                        name: "owner",
+                        type: "address",
+                    },
+                ],
+                name: "balanceOf",
+                outputs: [
+                    {
+                        internalType: "uint256",
+                        name: "",
+                        type: "uint256",
+                    },
+                ],
+                stateMutability: "view",
+                type: "function",
+            },
+            {
+                inputs: [],
+                name: "contractURI",
+                outputs: [
+                    {
+                        internalType: "string",
+                        name: "",
+                        type: "string",
+                    },
+                ],
+                stateMutability: "pure",
+                type: "function",
+            },
+            {
+                inputs: [
+                    {
+                        internalType: "uint256",
+                        name: "tokenId",
+                        type: "uint256",
+                    },
+                ],
+                name: "getApproved",
+                outputs: [
+                    {
+                        internalType: "address",
+                        name: "",
+                        type: "address",
+                    },
+                ],
+                stateMutability: "view",
+                type: "function",
+            },
+            {
+                inputs: [],
+                name: "getCurrentPrice",
+                outputs: [
+                    {
+                        internalType: "uint256",
+                        name: "",
+                        type: "uint256",
+                    },
+                ],
+                stateMutability: "view",
+                type: "function",
+            },
+            {
+                inputs: [],
+                name: "hardLimit",
+                outputs: [
+                    {
+                        internalType: "uint256",
+                        name: "",
+                        type: "uint256",
+                    },
+                ],
+                stateMutability: "view",
+                type: "function",
+            },
+            {
+                inputs: [
+                    {
+                        internalType: "address",
+                        name: "owner",
+                        type: "address",
+                    },
+                    {
+                        internalType: "address",
+                        name: "operator",
+                        type: "address",
+                    },
+                ],
+                name: "isApprovedForAll",
+                outputs: [
+                    {
+                        internalType: "bool",
+                        name: "",
+                        type: "bool",
+                    },
+                ],
+                stateMutability: "view",
+                type: "function",
+            },
+            {
+                inputs: [
+                    {
+                        internalType: "uint256[]",
+                        name: "tokenIDs",
+                        type: "uint256[]",
+                    },
+                ],
+                name: "mint",
+                outputs: [],
+                stateMutability: "payable",
+                type: "function",
+            },
+            {
+                inputs: [],
+                name: "name",
+                outputs: [
+                    {
+                        internalType: "string",
+                        name: "",
+                        type: "string",
+                    },
+                ],
+                stateMutability: "view",
+                type: "function",
+            },
+            {
+                inputs: [
+                    {
+                        internalType: "uint256",
+                        name: "tokenId",
+                        type: "uint256",
+                    },
+                ],
+                name: "ownerOf",
+                outputs: [
+                    {
+                        internalType: "address",
+                        name: "",
+                        type: "address",
+                    },
+                ],
+                stateMutability: "view",
+                type: "function",
+            },
+            {
+                inputs: [
+                    {
+                        internalType: "address",
+                        name: "from",
+                        type: "address",
+                    },
+                    {
+                        internalType: "address",
+                        name: "to",
+                        type: "address",
+                    },
+                    {
+                        internalType: "uint256",
+                        name: "tokenId",
+                        type: "uint256",
+                    },
+                ],
+                name: "safeTransferFrom",
+                outputs: [],
+                stateMutability: "nonpayable",
+                type: "function",
+            },
+            {
+                inputs: [
+                    {
+                        internalType: "address",
+                        name: "from",
+                        type: "address",
+                    },
+                    {
+                        internalType: "address",
+                        name: "to",
+                        type: "address",
+                    },
+                    {
+                        internalType: "uint256",
+                        name: "tokenId",
+                        type: "uint256",
+                    },
+                    {
+                        internalType: "bytes",
+                        name: "_data",
+                        type: "bytes",
+                    },
+                ],
+                name: "safeTransferFrom",
+                outputs: [],
+                stateMutability: "nonpayable",
+                type: "function",
+            },
+            {
+                inputs: [
+                    {
+                        internalType: "address",
+                        name: "operator",
+                        type: "address",
+                    },
+                    {
+                        internalType: "bool",
+                        name: "approved",
+                        type: "bool",
+                    },
+                ],
+                name: "setApprovalForAll",
+                outputs: [],
+                stateMutability: "nonpayable",
+                type: "function",
+            },
+            {
+                inputs: [
+                    {
+                        internalType: "bytes4",
+                        name: "interfaceId",
+                        type: "bytes4",
+                    },
+                ],
+                name: "supportsInterface",
+                outputs: [
+                    {
+                        internalType: "bool",
+                        name: "",
+                        type: "bool",
+                    },
+                ],
+                stateMutability: "view",
+                type: "function",
+            },
+            {
+                inputs: [],
+                name: "symbol",
+                outputs: [
+                    {
+                        internalType: "string",
+                        name: "",
+                        type: "string",
+                    },
+                ],
+                stateMutability: "view",
+                type: "function",
+            },
+            {
+                inputs: [
+                    {
+                        internalType: "uint256",
+                        name: "index",
+                        type: "uint256",
+                    },
+                ],
+                name: "tokenByIndex",
+                outputs: [
+                    {
+                        internalType: "uint256",
+                        name: "",
+                        type: "uint256",
+                    },
+                ],
+                stateMutability: "view",
+                type: "function",
+            },
+            {
+                inputs: [
+                    {
+                        internalType: "address",
+                        name: "owner",
+                        type: "address",
+                    },
+                    {
+                        internalType: "uint256",
+                        name: "index",
+                        type: "uint256",
+                    },
+                ],
+                name: "tokenOfOwnerByIndex",
+                outputs: [
+                    {
+                        internalType: "uint256",
+                        name: "",
+                        type: "uint256",
+                    },
+                ],
+                stateMutability: "view",
+                type: "function",
+            },
+            {
+                inputs: [
+                    {
+                        internalType: "uint256",
+                        name: "tokenId",
+                        type: "uint256",
+                    },
+                ],
+                name: "tokenURI",
+                outputs: [
+                    {
+                        internalType: "string",
+                        name: "",
+                        type: "string",
+                    },
+                ],
+                stateMutability: "view",
+                type: "function",
+            },
+            {
+                inputs: [],
+                name: "totalSupply",
+                outputs: [
+                    {
+                        internalType: "uint256",
+                        name: "",
+                        type: "uint256",
+                    },
+                ],
+                stateMutability: "view",
+                type: "function",
+            },
+            {
+                inputs: [
+                    {
+                        internalType: "address",
+                        name: "from",
+                        type: "address",
+                    },
+                    {
+                        internalType: "address",
+                        name: "to",
+                        type: "address",
+                    },
+                    {
+                        internalType: "uint256",
+                        name: "tokenId",
+                        type: "uint256",
+                    },
+                ],
+                name: "transferFrom",
+                outputs: [],
+                stateMutability: "nonpayable",
+                type: "function",
+            },
+        ];
+
         contract = new web3.eth.Contract(
             abi,
-            "0x0e33af3b87065072cfda44649c5bdb5be3908817"
+            "0xabc3c131238bbf24972856b25fb484eddab76f46"
         );
 
         startContractListeners();
@@ -729,6 +689,7 @@ export async function fetchSinglePunk(tokenID) {
     let data = await fetch(
         `${baseMetadataURI}api/token/${tokenID}`
     ).then((res) => res.json());
+    data.tokenID = tokenID;
 
     totalSupply.set(await contract.methods.totalSupply().call());
     let soldIDs = [];
@@ -746,7 +707,13 @@ export async function fetchSinglePunk(tokenID) {
     }
 
     console.log(data.owner);
-    data.price = await getCurrentPrice();
+    console.log(get(selectedAccount));
+    console.log(ownerWallet);
+    if (get(selectedAccount) === ownerWallet) {
+        data.price = 0;
+    } else {
+        data.price = await getCurrentPrice();
+    }
 
     let transactions = await contract.getPastEvents("Transfer", {
         fromBlock: 0,
@@ -768,6 +735,7 @@ export async function fetchSinglePunk(tokenID) {
             );
             let blockData = await web3.eth.getBlock(txData.blockNumber);
             txData.timestamp = blockData.timestamp;
+            txData.value = web3.utils.fromWei(txData.value, "ether");
 
             console.log(txData);
             return txData;
@@ -784,9 +752,7 @@ async function getCurrentPrice() {
     let _totalSupply = parseInt(get(totalSupply));
     console.log(_totalSupply);
 
-    if (_totalSupply <= 30 || !_totalSupply) {
-        price = 0.0;
-    } else if (_totalSupply > 30 && _totalSupply <= 299) {
+    if (_totalSupply <= 299) {
         price = 0.01;
     } else if (_totalSupply > 299 && _totalSupply <= 799) {
         price = 0.02;
@@ -829,23 +795,34 @@ async function getCurrentPrice() {
     return price;
 }
 
-export async function attemptMint(tokenID) {
+export async function attemptMint(cartArr) {
     if (!contract) await connectContract();
 
     let web3 = get(_web3);
     const overrides = {
         from: clean_address(get(selectedAccount)),
         value: web3.utils.toWei(
-            (await getCurrentPrice(tokenID)).toString(),
+            get(selectedAccount) === ownerWallet
+                ? "0"
+                : (
+                      (await getCurrentPrice(cartArr[0].tokenID)) *
+                      cartArr.length
+                  ).toString(),
             "ether"
         ),
+        gasLimit: 200000,
     };
 
     console.log(overrides);
     let ret;
+    let tokenIDs = cartArr.map((item) => {
+        return new BN(parseInt(item.tokenID));
+    });
+    console.log(tokenIDs);
     try {
-        ret = await contract.methods.mint(tokenID).send(overrides);
+        ret = await contract.methods.mint(tokenIDs).send(overrides);
     } catch (e) {
+        console.log(e);
         ret = false;
     }
 

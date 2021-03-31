@@ -2,14 +2,27 @@
     import { onMount } from "svelte";
     import { fetchSinglePunk, attemptMint } from "../../stores/contract";
     import { selectedAccount } from "../../stores/wallet";
+    import {
+        addToCart,
+        cartArr,
+        isInCart,
+        removeFromCart,
+    } from "../../stores/cart";
     import attributePercentages from "../../assets/attribute-percentages.json";
 
     export let params = {};
 
-    const { tokenID } = params;
+    $: tokenID = params.tokenID;
+
     let punkData;
 
-    let isValidTokenID = tokenID >= 0 && tokenID <= 12500;
+    $: if (params.tokenID) {
+        //watch the params.id for changes
+        console.log("here");
+        fetchPunkData(); //invoke your method to reload data
+    }
+
+    $: isValidTokenID = tokenID >= 0 && tokenID <= 12500;
 
     let isWaitingForTx = false;
 
@@ -65,6 +78,18 @@
         return ret;
     }
 
+    function _isInCart(cartArr, tokenID) {
+        let isInCartAlready = false;
+
+        for (let i = 0; i < cartArr.length; i++) {
+            if (cartArr[i].tokenID === tokenID) {
+                isInCartAlready = true;
+            }
+        }
+
+        return isInCartAlready;
+    }
+
     console.log(attributePercentages);
 </script>
 
@@ -75,7 +100,7 @@
                 <div class="loader" />
             {:then}
                 {#if punkData}
-                    <div class="flex flex-auto w-full xxxx">
+                    <div class="flex flex-auto w-full aPunkContainer">
                         <div class="flex justify-center flex-auto w-1/2">
                             <img
                                 src={punkData.image}
@@ -112,15 +137,32 @@
                                 >
                                     Owned by {punkData.owner.substr(0, 10)}...
                                 </div>
-                            {:else}
+                            {:else if _isInCart($cartArr, punkData.tokenID)}
                                 <button
-                                    on:click={promptForMintToken}
+                                    on:click={() => {
+                                        removeFromCart(punkData);
+                                    }}
                                     class={`mb-6 shadow-lg self-center aStackCard-hover relative px-10 py-2 text-base text-white bg-FreshAF-red aStackCard`}
                                 >
                                     {#if isWaitingForTx}
                                         <div class="loader" />
                                     {:else}
-                                        Mint for {punkData.price} ETH
+                                        <!-- Mint for {punkData.price} ETH -->
+                                        Remove From Cart
+                                    {/if}
+                                </button>
+                            {:else}
+                                <button
+                                    on:click={() => {
+                                        addToCart(punkData);
+                                    }}
+                                    class={`mb-6 shadow-lg self-center aStackCard-hover relative px-10 py-2 text-base text-white bg-FreshAF-red aStackCard`}
+                                >
+                                    {#if isWaitingForTx}
+                                        <div class="loader" />
+                                    {:else}
+                                        <!-- Mint for {punkData.price} ETH -->
+                                        {punkData.price} ETH
                                     {/if}
                                 </button>
                             {/if}
@@ -137,13 +179,7 @@
                                     class="flex items-center justify-between mb-2 text-base dark:text-white"
                                 >
                                     <p>
-                                        {attribute.value}{attribute.trait_type ===
-                                        "background"
-                                            ? " Background"
-                                            : ""}{attribute.trait_type ===
-                                        "face"
-                                            ? " Face"
-                                            : ""}
+                                        {attribute.trait_type}: {attribute.value}
                                     </p>
                                     <div
                                         class="flex-auto mx-6 border-t-2 border-dashed aDashed"
@@ -263,6 +299,8 @@
             <p class="text-4xl text-center dark:text-white">404</p>
             <p class="text-4xl text-center dark:text-white">Invalid tokenID</p>
         </div>
+    {:else if !$selectedAccount}
+        <p class="mt-4 ml-10 text-xl dark:text-white">No wallet connected</p>
     {:else}
         <div class="loader" />
     {/if}
@@ -271,8 +309,12 @@
 <style>
     .punkImage {
         max-height: 625px;
+        max-width: 625px;
+        image-rendering: pixelated;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: crisp-edges;
     }
-    .xxxx {
+    .aPunkContainer {
         max-height: 625px;
     }
     .loader {

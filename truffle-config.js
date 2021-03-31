@@ -1,19 +1,27 @@
 const HDWalletProvider = require("@truffle/hdwallet-provider");
 const path = require("path");
 
-const mnemonic =
-    "place pistol roof spy gift supreme benefit captain crash vessel exhaust erosion";
-
 module.exports = {
     contracts_build_directory: path.join(__dirname, "src/contracts"),
     networks: {
-        ropsten: {
+        mainnet: {
             provider: function () {
                 return new HDWalletProvider(
                     "7e1cef9859dd7cc0607b4a5885d7b0d1caa6f4640d40a104fa386d8f4816f833",
-                    "https://eth-ropsten.alchemyapi.io/v2/ckns8ncj5ENbwf3WLFl33oOuhlm4i_2W"
+                    "https://mainnet.infura.io/v3/ee40d7f08ab54ca1a1dbb7c2d639d7f6"
                 );
             },
+            network_id: "1",
+        },
+        rinkeby: {
+            provider: function () {
+                return new HDWalletProvider(
+                    "db687b877edc2939b3f8d4da14f29ed181a08fc59658390013b4e26fe337aa7b",
+                    "https://rinkeby.infura.io/v3/48dbaad3d97f4f6abebb51c4df73e834"
+                );
+            },
+            gasPrice: 80000000000,
+            // gas: 3000000,
             network_id: "*",
         },
         development: {
@@ -24,7 +32,7 @@ module.exports = {
     },
     compilers: {
         solc: {
-            version: "^0.6.0",
+            version: "^0.8.0",
             parser: "solcjs",
         },
     },

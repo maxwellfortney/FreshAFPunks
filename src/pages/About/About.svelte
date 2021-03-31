@@ -1,3 +1,7 @@
+<script>
+    import { totalSupply } from "../../stores/contract";
+</script>
+
 <div class="flex flex-col items-center justify-start flex-auto w-11/12 mt-8">
     <h1 class="self-start mb-3 text-xl dark:text-white">
         About FreshAFPunks
@@ -61,26 +65,174 @@
         FreshAFPunks below is the roadmap of the Bonding curve get in early!!
     </p>
     <div class="flex flex-col my-2 text-base text-center dark:text-white">
-        <p>0 - 30 => Reserved for Giveaways and a few placeholders.</p>
-        <p>30 - 299 => 0.01 ETH</p>
-        <p>300 - 799 => 0.02 ETH</p>
-        <p>800 - 1499 => 0.03 ETH</p>
-        <p>1500 - 2299 => 0.04 ETH</p>
-        <p>2300 - 2999 => 0.05 ETH</p>
-        <p>3000 - 3699 => 0.10 ETH</p>
-        <p>3700 - 4399 => 0.11 ETH</p>
-        <p>4400 - 5099 => 0.12 ETH</p>
-        <p>5100 - 5799 => 0.13 ETH</p>
-        <p>5800 - 6499 => 0.14 ETH</p>
-        <p>6500 - 7199 => 0.28 ETH</p>
-        <p>7200 - 7899 => 0.29 ETH</p>
-        <p>7900 - 8599 => 0.30 ETH</p>
-        <p>8600 - 9299 => 0.31 ETH</p>
-        <p>9300 - 9999 => 0.32 ETH</p>
-        <p>10000 - 10699 => 0.64 ETH</p>
-        <p>10700 - 11399 => 0.65 ETH</p>
-        <p>11400 - 12099 => 0.66 ETH</p>
-        <p>12100 - 12500 => 0.83 ETH</p>
+        <p class={`${parseInt($totalSupply) >= 299 ? "line-through" : ""}`}>
+            0 - 299 => 0.01 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 300 && parseInt($totalSupply) > 800
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            300 - 799 => 0.02 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 800 && parseInt($totalSupply) > 1499
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            800 - 1499 => 0.03 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 1499 && parseInt($totalSupply) > 2299
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            1500 - 2299 => 0.04 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 2299 && parseInt($totalSupply) > 2999
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            2300 - 2999 => 0.05 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 2999 && parseInt($totalSupply) > 3699
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            3000 - 3699 => 0.10 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 3699 && parseInt($totalSupply) > 4399
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            3700 - 4399 => 0.11 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 4399 && parseInt($totalSupply) > 5099
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            4400 - 5099 => 0.12 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 5099 && parseInt($totalSupply) > 5799
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            5100 - 5799 => 0.13 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 5799 && parseInt($totalSupply) > 6499
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            5800 - 6499 => 0.14 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 6499 && parseInt($totalSupply) > 7199
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            6500 - 7199 => 0.28 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 7199 && parseInt($totalSupply) > 7899
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            7200 - 7899 => 0.29 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 7899 && parseInt($totalSupply) > 8599
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            7900 - 8599 => 0.30 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 8599 && parseInt($totalSupply) > 9299
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            8600 - 9299 => 0.31 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 9299 && parseInt($totalSupply) > 9999
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            9300 - 9999 => 0.32 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 9999 && parseInt($totalSupply) > 10699
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            10000 - 10699 => 0.64 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 10699 &&
+                parseInt($totalSupply) > 11399
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            10700 - 11399 => 0.65 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 11399 &&
+                parseInt($totalSupply) > 12099
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            11400 - 12099 => 0.66 ETH
+        </p>
+        <p
+            class={`${
+                parseInt($totalSupply) >= 12099 &&
+                parseInt($totalSupply) >= 12500
+                    ? "line-through"
+                    : ""
+            }`}
+        >
+            12100 - 12500 => 0.83 ETH
+        </p>
     </div>
 
     <h2 class="self-start mt-4 text-lg dark:text-white">
@@ -101,7 +253,7 @@
     <p class="w-10/12 my-4 text-base text-center dark:text-white">
         FreshAFPunks adhere to the ERC-721 standard so you can trade them on
         platforms like <a
-            class="underline redUnderline"
+            class="underline transition-opacity redUnderline hover:opacity-70"
             href="https://opensea.io/">OpenSea</a
         >. (Recommended)!!
     </p>
@@ -130,6 +282,21 @@
     <p class="w-10/12 my-4 text-base text-center dark:text-white">
         Spread the word there’s new Punks on the block and we are here to stay!!
         Cant wait to see all you FreshAFPunk collectors on the flipside…
+    </p>
+
+    <h2 class="self-start mt-4 text-lg dark:text-white">
+        How do I change my login?
+        <div class="bg-FreshAF-red psuedoUnderline" />
+    </h2>
+    <p class="w-10/12 my-4 text-base text-center dark:text-white">
+        To change your login from MetaMask to Fortmatic, go to <a
+            class="underline transition-opacity redUnderline hover:opacity-70"
+            href="/#/inventory">your inventory</a
+        > and click "clear cached login" in the bottom right corner.
+    </p>
+    <p class="w-10/12 my-4 text-base text-center dark:text-white">
+        To change your account within MetaMask disconnect your current account
+        from the website, and login with your new account.
     </p>
 </div>
 
