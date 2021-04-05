@@ -31,6 +31,19 @@
             push("/inventory");
         }
     }
+
+    let searchValue;
+
+    function handleSearchInput(e) {
+        let value = parseInt(e.target.value);
+        if (value > 12499) {
+            searchValue = 12499;
+        } else if (value < 0) {
+            searchValue = 0;
+        } else {
+            searchValue = value;
+        }
+    }
 </script>
 
 <div
@@ -45,6 +58,23 @@
         class="pl-1 text-2xl sm:pl-0 sm:text-4xl flamingShadow dark:text-white"
         >FreshAFPunks</a
     >
+    <form
+        class="flex justify-end flex-auto"
+        on:submit={(e) => {
+            push(`/shop/${searchValue}`);
+            e.target.reset();
+        }}
+    >
+        <input
+            class="px-2 py-1 mr-7"
+            placeholder="Search"
+            type="number"
+            min={0}
+            step={1}
+            max={12499}
+            on:change={(e) => handleSearchInput(e)}
+        />
+    </form>
     <div class="items-center hidden md:flex">
         <div class="flex flex-col mr-6 lg:mr-10">
             <a

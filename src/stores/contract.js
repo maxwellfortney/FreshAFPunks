@@ -11,13 +11,14 @@ export let userNumOwnedPunks = writable(0);
 export let userOwnedPunksData = writable([]);
 export let userAverageRarity = writable(0);
 export let userMostRare = writable();
-export let randomPunkNum = writable();
 
 export let userPunks;
 export let totalSupply = writable(0);
 
+export let currentPrice = writable();
+
 // export let mintablePunksData = writable([]);
-export let soldURLs = writable([]);
+export let soldIDs = writable([]);
 
 const ownerWallet = "0xC95D30228b2AD9B6A8Ba290B445b6ff6af0b715E";
 
@@ -28,25 +29,45 @@ function clean_address(address) {
     return String(address).toLowerCase();
 }
 
-export let my_tokens = [];
+export async function checkOwnerOf(tokenID) {
+    if (!contract) await connectContract();
+
+    if (contract) {
+        try {
+            await contract.methods.ownerOf(tokenID).call();
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    return false;
+}
 
 export async function getRandomMintablePunk() {
     if (!contract) await connectContract();
     if (contract && get(selectedAccount)) {
-        let soldIDs = [];
-
-        for (let i = 0; i < parseInt(get(totalSupply)); i++) {
-            soldIDs.push(
-                parseInt(await contract.methods.tokenByIndex(i).call())
-            );
-        }
-
         let randomNum = Math.floor(Math.random() * 12500);
-        while (soldIDs.includes[randomNum]) {
-            randomNum = Math.floor(Math.random() * 12500);
+
+        let isTaken = true;
+        while (isTaken) {
+            try {
+                await contract.methods.ownerOf(randomNum).call();
+                console.log("Is taken: ", randomNum);
+                randomNum = Math.floor(Math.random() * 12500);
+            } catch (e) {
+                // console.log(e);
+                console.log("Is available");
+                isTaken = false;
+            }
         }
 
-        randomPunkNum.set(randomNum);
+        // try {
+        //     console.log(await contract.methods.ownerOf(randomNum).call());
+        // } catch (e) {
+        //     console.log("Is available: confirmed");
+        // }
+
         return randomNum;
     }
 }
@@ -102,19 +123,23 @@ export async function getSoldPunks(offset, limit) {
         if (get(totalSupply) && parseInt(get(totalSupply)) > 0) {
             let soldIDs = [];
 
-            for (let i = 0; i < parseInt(get(totalSupply)); i++) {
+            for (
+                let i = offset;
+                i < parseInt(get(totalSupply)) && i < offset + limit;
+                i++
+            ) {
                 soldIDs.push(await contract.methods.tokenByIndex(i).call());
             }
 
-            soldIDs.sort((a, b) => {
-                return a - b;
-            });
+            // soldIDs.sort((a, b) => {
+            //     return a - b;
+            // });
 
-            if (soldIDs.length > limit + offset) {
-                soldIDs = soldIDs.slice(offset, offset + limit);
-            }
+            // if (soldIDs.length > limit + offset) {
+            //     soldIDs = soldIDs.slice(offset, offset + limit);
+            // }
 
-            for (let i = offset; i < soldIDs.length; i++) {
+            for (let i = 0; i < soldIDs.length; i++) {
                 let data = await fetch(
                     `${baseMetadataURI}api/token/${soldIDs[i]}`
                 ).then((res) => res.json());
@@ -163,6 +188,7 @@ export async function getUserInventory() {
                 console.log(data);
 
                 data.attributes.forEach((attribute, i) => {
+                    if (attribute.display_type) return;
                     let rarity = getPercentageForAttribute(attribute.value);
                     console.log(rarity);
                     console.log(lowestRarityPercent);
@@ -666,86 +692,84 @@ export async function connectContract() {
             },
         ];
 
+        // contract = new web3.eth.Contract(
+        //     abi,
+        //     "0x324108A592E6A9C0e1A28707d94017fC10662b04"
+        // );
+
         contract = new web3.eth.Contract(
             abi,
-            "0xabc3c131238bbf24972856b25fb484eddab76f46"
+            "0xAbC3c131238Bbf24972856B25fb484EDDAB76f46"
         );
 
-        startContractListeners();
+        startContractListeners(web3);
+        currentPrice.set(await getCurrentPrice());
+        console.log(await getCurrentPrice());
     } else {
         state.set("no-web3");
     }
 }
 
-function startContractListeners() {
+function startContractListeners(web3) {
     contract.events.Transfer(async () => {
         console.log("Transfer occured");
+        currentPrice.set(await getCurrentPrice());
+        totalSupply.set(parseInt(await contract.methods.totalSupply().call()));
     });
 }
 
 export async function fetchSinglePunk(tokenID) {
     if (!contract) await connectContract();
 
-    let data = await fetch(
-        `${baseMetadataURI}api/token/${tokenID}`
-    ).then((res) => res.json());
-    data.tokenID = tokenID;
+    if (contract) {
+        let data = await fetch(
+            `${baseMetadataURI}api/token/${tokenID}`
+        ).then((res) => res.json());
+        data.tokenID = tokenID;
 
-    totalSupply.set(await contract.methods.totalSupply().call());
-    let soldIDs = [];
+        totalSupply.set(await contract?.methods.totalSupply().call());
 
-    for (let i = 0; i < parseInt(get(totalSupply)); i++) {
-        soldIDs.push(await contract.methods.tokenByIndex(i).call());
+        try {
+            let ownerOf = await contract.methods.ownerOf(tokenID).call();
+            data.owner = ownerOf;
+        } catch (e) {
+            data.owner = null;
+        }
+
+        console.log(data.owner);
+
+        let transactions = await contract.getPastEvents("Transfer", {
+            fromBlock: 0,
+            toBlock: "latest",
+        });
+
+        transactions = transactions.filter((transaction) => {
+            return transaction.returnValues.tokenId === tokenID;
+        });
+
+        let web3 = get(_web3);
+
+        data.transactions = await Promise.all(
+            transactions.map(async (transaction, i) => {
+                let txData = await web3.eth.getTransaction(
+                    transaction.transactionHash
+                );
+                let blockData = await web3.eth.getBlock(txData.blockNumber);
+                txData.timestamp = blockData.timestamp;
+                txData.value = web3.utils.fromWei(txData.value, "ether");
+
+                console.log(txData);
+                return txData;
+            })
+        );
+
+        return data;
     }
-
-    console.log(soldIDs);
-
-    if (soldIDs.includes(tokenID)) {
-        data.owner = await contract.methods.ownerOf(tokenID).call();
-    } else {
-        data.owner = null;
-    }
-
-    console.log(data.owner);
-    console.log(get(selectedAccount));
-    console.log(ownerWallet);
-    if (get(selectedAccount) === ownerWallet) {
-        data.price = 0;
-    } else {
-        data.price = await getCurrentPrice();
-    }
-
-    let transactions = await contract.getPastEvents("Transfer", {
-        fromBlock: 0,
-        toBlock: "latest",
-    });
-
-    transactions = transactions.filter((transaction) => {
-        return transaction.returnValues.tokenId === tokenID;
-    });
-
-    // data.transactions = transactions;
-
-    let web3 = get(_web3);
-
-    data.transactions = await Promise.all(
-        transactions.map(async (transaction, i) => {
-            let txData = await web3.eth.getTransaction(
-                transaction.transactionHash
-            );
-            let blockData = await web3.eth.getBlock(txData.blockNumber);
-            txData.timestamp = blockData.timestamp;
-            txData.value = web3.utils.fromWei(txData.value, "ether");
-
-            console.log(txData);
-            return txData;
-        })
-    );
-
-    return data;
 }
 
-async function getCurrentPrice() {
+export async function getCurrentPrice() {
+    if (!contract) await connectContract();
+
     let price = 0.01;
     totalSupply.set(await contract.methods.totalSupply().call());
 
@@ -792,10 +816,12 @@ async function getCurrentPrice() {
         price = 0.83;
     }
 
+    currentPrice.set(price);
+
     return price;
 }
 
-export async function attemptMint(cartArr) {
+export async function attemptMint(randomIDs) {
     if (!contract) await connectContract();
 
     let web3 = get(_web3);
@@ -804,19 +830,16 @@ export async function attemptMint(cartArr) {
         value: web3.utils.toWei(
             get(selectedAccount) === ownerWallet
                 ? "0"
-                : (
-                      (await getCurrentPrice(cartArr[0].tokenID)) *
-                      cartArr.length
-                  ).toString(),
+                : ((await getCurrentPrice()) * randomIDs.length).toString(),
             "ether"
         ),
-        gasLimit: 200000,
+        gasLimit: 180000 * randomIDs.length,
     };
 
     console.log(overrides);
     let ret;
-    let tokenIDs = cartArr.map((item) => {
-        return new BN(parseInt(item.tokenID));
+    let tokenIDs = randomIDs.map((item) => {
+        return new BN(parseInt(item));
     });
     console.log(tokenIDs);
     try {

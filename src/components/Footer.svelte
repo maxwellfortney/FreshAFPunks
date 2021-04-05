@@ -2,10 +2,8 @@
     import OpenSeaLogo from "../assets/icons/opensea.png";
 </script>
 
->
-
 <div class="flex items-center w-full p-5 myFooter">
-    <a href="https://discord.gg/SB4bjeyP" class="flex mr-6 discordLogo">
+    <a href="http://discord.gg/yRHefb52mf" class="flex mr-6 discordLogo">
         <svg
             aria-hidden="true"
             focusable="false"

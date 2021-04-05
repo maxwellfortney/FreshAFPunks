@@ -22,9 +22,7 @@
         fetchPunkData(); //invoke your method to reload data
     }
 
-    $: isValidTokenID = tokenID >= 0 && tokenID <= 12500;
-
-    let isWaitingForTx = false;
+    $: isValidTokenID = tokenID >= 0 && tokenID < 12500;
 
     async function fetchPunkData() {
         punkData = await fetchSinglePunk(tokenID);
@@ -37,18 +35,6 @@
         return n.length >= width
             ? n
             : new Array(width - n.length + 1).join(z) + n;
-    }
-
-    async function promptForMintToken() {
-        isWaitingForTx = true;
-        let tx = await attemptMint(tokenID);
-        isWaitingForTx = false;
-        console.log(tx);
-        if (tx === false) {
-            //
-        } else {
-            await fetchPunkData();
-        }
     }
 
     function getPercentageForAttribute(value) {
@@ -76,18 +62,6 @@
         ret += date.getFullYear();
 
         return ret;
-    }
-
-    function _isInCart(cartArr, tokenID) {
-        let isInCartAlready = false;
-
-        for (let i = 0; i < cartArr.length; i++) {
-            if (cartArr[i].tokenID === tokenID) {
-                isInCartAlready = true;
-            }
-        }
-
-        return isInCartAlready;
     }
 
     console.log(attributePercentages);
@@ -132,39 +106,22 @@
                                 ipsum dolor sit amet, consectetur adipiscing.
                             </p> -->
                             {#if punkData.owner}
-                                <div
+                                <a
+                                    href={`https://opensea.io/assets/0xabc3c131238bbf24972856b25fb484eddab76f46/${punkData.tokenID}`}
                                     class={`mb-6 mx-auto shadow-lg aStackCard-hover relative px-10 py-2 text-base text-white bg-FreshAF-red aStackCard`}
                                 >
-                                    Owned by {punkData.owner.substr(0, 10)}...
-                                </div>
-                            {:else if _isInCart($cartArr, punkData.tokenID)}
-                                <button
-                                    on:click={() => {
-                                        removeFromCart(punkData);
-                                    }}
-                                    class={`mb-6 shadow-lg self-center aStackCard-hover relative px-10 py-2 text-base text-white bg-FreshAF-red aStackCard`}
-                                >
-                                    {#if isWaitingForTx}
-                                        <div class="loader" />
-                                    {:else}
-                                        <!-- Mint for {punkData.price} ETH -->
-                                        Remove From Cart
-                                    {/if}
-                                </button>
+                                    Owned by {punkData.owner ===
+                                    $selectedAccount
+                                        ? "You"
+                                        : `${punkData.owner.substr(0, 10)}...`}
+                                </a>
                             {:else}
-                                <button
-                                    on:click={() => {
-                                        addToCart(punkData);
-                                    }}
+                                <a
+                                    href="/#/shop"
                                     class={`mb-6 shadow-lg self-center aStackCard-hover relative px-10 py-2 text-base text-white bg-FreshAF-red aStackCard`}
                                 >
-                                    {#if isWaitingForTx}
-                                        <div class="loader" />
-                                    {:else}
-                                        <!-- Mint for {punkData.price} ETH -->
-                                        {punkData.price} ETH
-                                    {/if}
-                                </button>
+                                    Available
+                                </a>
                             {/if}
                         </div>
                     </div>
@@ -175,21 +132,37 @@
                         </h2>
                         <div class="flex flex-col w-11/12 mx-auto mt-2">
                             {#each punkData.attributes as attribute}
-                                <div
-                                    class="flex items-center justify-between mb-2 text-base dark:text-white"
-                                >
-                                    <p>
-                                        {attribute.trait_type}: {attribute.value}
-                                    </p>
+                                {#if !attribute.display_type}
                                     <div
-                                        class="flex-auto mx-6 border-t-2 border-dashed aDashed"
-                                    />
-                                    <p>
-                                        {getPercentageForAttribute(
-                                            attribute.value
-                                        ).toFixed(2)}%
-                                    </p>
-                                </div>
+                                        class="flex items-center justify-between mb-2 text-base dark:text-white"
+                                    >
+                                        <p>
+                                            {attribute.trait_type}: {attribute.value}
+                                        </p>
+                                        <div
+                                            class="flex-auto mx-6 border-t-2 border-dashed aDashed"
+                                        />
+                                        <p>
+                                            {getPercentageForAttribute(
+                                                attribute.value
+                                            ).toFixed(2)}%
+                                        </p>
+                                    </div>
+                                {:else}
+                                    <div
+                                        class="flex items-center justify-between mb-2 text-base dark:text-white"
+                                    >
+                                        <p>
+                                            {attribute.trait_type}
+                                        </p>
+                                        <div
+                                            class="flex-auto mx-6 border-t-2 border-dashed aDashed"
+                                        />
+                                        <p>
+                                            {attribute.value}/{attribute.max_value}
+                                        </p>
+                                    </div>
+                                {/if}
                             {/each}
                         </div>
                         {#if punkData.owner}
@@ -267,22 +240,35 @@
                                         {#each punkData.transactions.reverse() as transaction}
                                             <tr class="py-1">
                                                 <td
-                                                    >{transaction.from.substr(
-                                                        0,
-                                                        10
-                                                    )}...</td
+                                                    ><a
+                                                        href={`https://etherscan.io/tx/${transaction.hash}`}
+                                                        >{transaction.from.substr(
+                                                            0,
+                                                            10
+                                                        )}...</a
+                                                    ></td
                                                 >
                                                 <td
-                                                    >{transaction.to.substr(
-                                                        0,
-                                                        10
-                                                    )}...</td
+                                                    ><a
+                                                        href={`https://etherscan.io/tx/${transaction.hash}`}
+                                                        >{transaction.to.substr(
+                                                            0,
+                                                            10
+                                                        )}...</a
+                                                    ></td
                                                 >
-                                                <td>{transaction.value}</td>
                                                 <td
-                                                    >{parseTxDate(
-                                                        transaction.timestamp
-                                                    )}</td
+                                                    >{parseFloat(
+                                                        transaction.value
+                                                    ).toFixed(3)}</td
+                                                >
+                                                <td
+                                                    ><a
+                                                        href={`https://etherscan.io/tx/${transaction.hash}`}
+                                                        >{parseTxDate(
+                                                            transaction.timestamp
+                                                        )}</a
+                                                    ></td
                                                 >
                                             </tr>
                                         {/each}

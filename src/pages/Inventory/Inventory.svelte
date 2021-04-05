@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import {
         connectContract,
         getUserInventory,
@@ -14,13 +14,21 @@
         networkID,
     } from "../../stores/wallet";
 
-    // onMount(async () => {
-    //     await connectContract();
-    //     await getUserInventory();
-    // });
+    let isLoading = false;
+
+    onMount(() => {
+        document.getElementsByClassName("mainApp")[0].style.maxHeight = "100vh";
+    });
+
+    onDestroy(() => {
+        document.getElementsByClassName("mainApp")[0].style.maxHeight =
+            "initial";
+    });
 
     async function getUserInfo() {
+        isLoading = true;
         await getUserInventory();
+        isLoading = false;
     }
 
     // async function calculateAverageRarity() {
@@ -34,11 +42,20 @@
 >
     Clear Cached Login
 </p>
-<div class="flex flex-col items-center justify-start flex-auto w-full">
+<div
+    class="flex flex-col items-center justify-start flex-auto w-full overflow-y-auto"
+>
     <!-- ADD HERE -->
-    {#if $selectedAccount && $networkID}
+    {#if $selectedAccount && $networkID === 1}
         {#await getUserInfo()}
-            <div class="loader" />
+            <div class="flex flex-col items-center justify-center flex-auto">
+                <div class="loader" />
+                <p class="mt-4 text-sm dark:text-white">
+                    Loading {$userNumOwnedPunks && $userOwnedPunksData
+                        ? `${$userOwnedPunksData.length}/${$userNumOwnedPunks} FreshAFPunks`
+                        : ""}
+                </p>
+            </div>
         {:then}
             <div class="flex flex-col w-10/12 mt-12">
                 <div class="flex flex-col self-start">
@@ -57,8 +74,7 @@
                         Average Rarity: {$userAverageRarity}%
                     </p>
                     <p class="mt-2 ml-10 text-xl dark:text-white">
-                        Most Rare Attribute: {$userMostRare.value}
-                        {$userMostRare.trait_type}
+                        Most Rare Attribute: {$userMostRare.trait_type}: {$userMostRare.value}
                         {$userMostRare.rarity.toFixed(2)}%
                     </p>
                 {/if}
@@ -128,5 +144,14 @@
         image-rendering: pixelated;
         image-rendering: -moz-crisp-edges;
         image-rendering: crisp-edges;
+    }
+
+    .loader {
+        border: 4px solid #f0f0f025; /* Light grey */
+        border-top: 4px solid #dbdbdb; /* Blue */
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        animation: spin 1s linear infinite;
     }
 </style>

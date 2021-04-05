@@ -1,5 +1,6 @@
 <script>
-    import { totalSupply } from "../../stores/contract";
+    import { connectContract, totalSupply } from "../../stores/contract";
+    import { selectedAccount } from "../../stores/wallet";
 </script>
 
 <div class="flex flex-col items-center justify-start flex-auto w-11/12 mt-8">
@@ -62,177 +63,438 @@
         The purchase price increases with a bonding curve to create Hype and
         Urgency so that it rewards early supporters so that more people will buy
         now to build a community and encourage collecting and trading of these
-        FreshAFPunks below is the roadmap of the Bonding curve get in early!!
+        FreshAFPunks. Below is the roadmap of the Bonding curve. Get in early!!
     </p>
-    <div class="flex flex-col my-2 text-base text-center dark:text-white">
-        <p class={`${parseInt($totalSupply) >= 299 ? "line-through" : ""}`}>
-            0 - 299 => 0.01 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 300 && parseInt($totalSupply) > 800
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            300 - 799 => 0.02 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 800 && parseInt($totalSupply) > 1499
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            800 - 1499 => 0.03 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 1499 && parseInt($totalSupply) > 2299
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            1500 - 2299 => 0.04 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 2299 && parseInt($totalSupply) > 2999
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            2300 - 2999 => 0.05 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 2999 && parseInt($totalSupply) > 3699
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            3000 - 3699 => 0.10 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 3699 && parseInt($totalSupply) > 4399
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            3700 - 4399 => 0.11 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 4399 && parseInt($totalSupply) > 5099
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            4400 - 5099 => 0.12 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 5099 && parseInt($totalSupply) > 5799
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            5100 - 5799 => 0.13 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 5799 && parseInt($totalSupply) > 6499
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            5800 - 6499 => 0.14 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 6499 && parseInt($totalSupply) > 7199
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            6500 - 7199 => 0.28 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 7199 && parseInt($totalSupply) > 7899
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            7200 - 7899 => 0.29 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 7899 && parseInt($totalSupply) > 8599
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            7900 - 8599 => 0.30 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 8599 && parseInt($totalSupply) > 9299
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            8600 - 9299 => 0.31 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 9299 && parseInt($totalSupply) > 9999
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            9300 - 9999 => 0.32 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 9999 && parseInt($totalSupply) > 10699
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            10000 - 10699 => 0.64 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 10699 &&
-                parseInt($totalSupply) > 11399
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            10700 - 11399 => 0.65 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 11399 &&
-                parseInt($totalSupply) > 12099
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            11400 - 12099 => 0.66 ETH
-        </p>
-        <p
-            class={`${
-                parseInt($totalSupply) >= 12099 &&
-                parseInt($totalSupply) >= 12500
-                    ? "line-through"
-                    : ""
-            }`}
-        >
-            12100 - 12500 => 0.83 ETH
-        </p>
+    <div
+        class="flex items-start justify-center w-1/2 my-2 text-base text-center dark:text-white"
+    >
+        {#if $selectedAccount}
+            {#await connectContract()}
+                <div class="loader" />
+            {:then}
+                <div class="flex flex-col w-1/2">
+                    <div class="flex flex-col">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 299
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #0 - #299
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 299
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.01 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 800 &&
+                                parseInt($totalSupply) > 1499
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #800 - #1499
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 800 &&
+                                parseInt($totalSupply) > 1499
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.03 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 2299 &&
+                                parseInt($totalSupply) > 2999
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #2300 - #2999
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 2299 &&
+                                parseInt($totalSupply) > 2999
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.05 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 3699 &&
+                                parseInt($totalSupply) > 4399
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #3700 - #4399
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 3699 &&
+                                parseInt($totalSupply) > 4399
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.11 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 5099 &&
+                                parseInt($totalSupply) > 5799
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #5100 - #5799
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 5099 &&
+                                parseInt($totalSupply) > 5799
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.13 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 6499 &&
+                                parseInt($totalSupply) > 7199
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #6500 - #7199
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 6499 &&
+                                parseInt($totalSupply) > 7199
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.28 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 7899 &&
+                                parseInt($totalSupply) > 8599
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #7900 - #8599
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 7899 &&
+                                parseInt($totalSupply) > 8599
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.30 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 9299 &&
+                                parseInt($totalSupply) > 9999
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #9300 - #9999
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 9299 &&
+                                parseInt($totalSupply) > 9999
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.32 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 10699 &&
+                                parseInt($totalSupply) > 11399
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #10700 - #11399
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 10699 &&
+                                parseInt($totalSupply) > 11399
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.65 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 12099 &&
+                                parseInt($totalSupply) >= 12500
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #12100 - #12500
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 12099 &&
+                                parseInt($totalSupply) >= 12500
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.83 ETH
+                        </p>
+                    </div>
+                </div>
+                <div class="flex flex-col w-1/2">
+                    <div class="flex flex-col">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 300 &&
+                                parseInt($totalSupply) > 800
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #300 - #799
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 300 &&
+                                parseInt($totalSupply) > 800
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.02 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 1499 &&
+                                parseInt($totalSupply) > 2299
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #1500 - #2299
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 1499 &&
+                                parseInt($totalSupply) > 2299
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.04 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 2999 &&
+                                parseInt($totalSupply) > 3699
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #3000 - #3699
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 2999 &&
+                                parseInt($totalSupply) > 3699
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.10 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 4399 &&
+                                parseInt($totalSupply) > 5099
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #4400 - #5099
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 4399 &&
+                                parseInt($totalSupply) > 5099
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.12 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 5799 &&
+                                parseInt($totalSupply) > 6499
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #5800 - #6499
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 5799 &&
+                                parseInt($totalSupply) > 6499
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.14 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 7199 &&
+                                parseInt($totalSupply) > 7899
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #7200 - #7899
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 7199 &&
+                                parseInt($totalSupply) > 7899
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.29 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 8599 &&
+                                parseInt($totalSupply) > 9299
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #8600 - #9299
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 8599 &&
+                                parseInt($totalSupply) > 9299
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.31 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 9999 &&
+                                parseInt($totalSupply) > 10699
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #10000 - #10699
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 9999 &&
+                                parseInt($totalSupply) > 10699
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.64 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <p
+                            class={`${
+                                parseInt($totalSupply) >= 11399 &&
+                                parseInt($totalSupply) > 12099
+                                    ? "line-through"
+                                    : ""
+                            }`}
+                        >
+                            #11400 - #12099
+                        </p>
+                        <p
+                            class={`redUnderline ${
+                                parseInt($totalSupply) >= 11399 &&
+                                parseInt($totalSupply) > 12099
+                                    ? "line-through"
+                                    : "underline"
+                            }`}
+                        >
+                            0.66 ETH
+                        </p>
+                    </div>
+                    <div class="flex flex-col mt-2" />
+                </div>
+            {/await}
+        {/if}
     </div>
 
     <h2 class="self-start mt-4 text-lg dark:text-white">
@@ -303,5 +565,14 @@
 <style>
     .redUnderline {
         text-decoration-color: #fc0000;
+    }
+
+    .loader {
+        border: 4px solid #f0f0f025; /* Light grey */
+        border-top: 4px solid #dbdbdb; /* Blue */
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        animation: spin 1s linear infinite;
     }
 </style>
